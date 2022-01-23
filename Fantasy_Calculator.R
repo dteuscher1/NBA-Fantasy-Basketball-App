@@ -9,6 +9,13 @@ data2 <- data %>%
     mutate_at(c(12:16, 19), as.numeric) %>%
     mutate(fantasy_pts = 2 * fgm -fga + ftm - fta + fg3m + reb + 2*ast + 4*stl + 4*blk - 2*to + pts)
 
+games <- seq(from = as.Date("2021-10-19"), to = Sys.Date(), by = 1)
+dates <- str_remove_all(games, "-")
+game_ids <- c()
+for(i in 1:length(dates)){
+    schedule <- hoopR::espn_nba_scoreboard(dates[i])
+    game_ids <- c(game_ids, schedule$game_id)
+}
 
 # Average points over x amount of games (Whole season or x amount of games)
 # Variance of fantasy points
