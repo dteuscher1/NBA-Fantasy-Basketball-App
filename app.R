@@ -3,8 +3,11 @@ library(shinythemes)
 library(shinydashboard)
 library(tidyverse)
 library(DT)
+library(lubridate)
 
-data <- read.csv("game_stats.csv")
+data <- read.csv("game_stats.csv") %>% 
+    mutate(date = str_extract(date, "[0-9\\-]+"), 
+           date = ymd(date) - 1)
 ui <- dashboardPage(
     dashboardHeader(title = "Fantasy Basketball"),
     dashboardSidebar(
@@ -42,11 +45,13 @@ server <- function(input, output, session){
     rplot_selected <- eventReactive(input$update1, {
         if(input$time == "Games"){
             output <- data %>% 
-                arrange(desc(game_id)) %>%
+                arrange(desc(date)) %>%
                 group_by(athlete_display_name) %>% 
-                top_n(input$number, game_id) %>%
-                summarize(avg = round(mean(fantasy_pts), digits = 1),
-                          variance = round(var(fantasy_pts), digits = 1)) %>% 
+                top_n(input$number, date) %>%
+                summarize(games_played = n(),
+                          avg = round(mean(fantasy_pts), digits = 1),
+                          sd = round(sd(fantasy_pts), digits = 1),
+                          single_measure = round(avg/sd, digits = 1)) %>% 
                 arrange(desc(avg))
         }
     })
