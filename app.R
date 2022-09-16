@@ -78,16 +78,41 @@ server <- function(input, output, session) {
     
     rplot_selected <- eventReactive(input$update1, {
         if (input$time == "Games") {
+          if(input$number == "Season"){
             output <- data %>% 
-                arrange(desc(date)) %>%
-                group_by(athlete_display_name) %>% 
-                top_n(input$number, date) %>%
-                summarize(games_played = n(),
-                          avg = round(mean(fantasy_pts), digits = 1),
-                          sd = round(sd(fantasy_pts), digits = 1),
-                          single_measure = round(avg/sd, digits = 1)) %>% 
-                arrange(desc(avg))
+              arrange(desc(date)) %>%
+              group_by(athlete_display_name) %>% 
+              top_n(input$number, date) %>%
+              summarize(games_played = n(),
+                        avg = round(mean(fantasy_pts), digits = 1),
+                        sd = round(sd(fantasy_pts), digits = 1),
+                        single_measure = round(avg/sd, digits = 1)) %>% 
+              arrange(desc(avg)) 
+          } else {
+            num_games <- as.numeric(input$number)
+            output <- data %>% 
+              arrange(desc(date)) %>%
+              group_by(athlete_display_name) %>% 
+              top_n(num_games, date) %>%
+              summarize(games_played = n(),
+                        avg = round(mean(fantasy_pts), digits = 1),
+                        sd = round(sd(fantasy_pts), digits = 1),
+                        single_measure = round(avg/sd, digits = 1)) %>% 
+              arrange(desc(avg))
+          }
         }
+      if(input$time == "Days"){
+        cut_date <- as.Date("2022-02-12") - as.numeric(input$number)
+        output <- data %>% 
+          arrange(desc(date)) %>%
+          group_by(athlete_display_name) %>% 
+          filter(date >= cut_date) %>%
+          summarize(games_played = n(),
+                    avg = round(mean(fantasy_pts), digits = 1),
+                    sd = round(sd(fantasy_pts), digits = 1),
+                    single_measure = round(avg/sd, digits = 1)) %>% 
+          arrange(desc(avg))
+      }
     })
     
     output$selected <- renderDataTable({
@@ -97,9 +122,9 @@ server <- function(input, output, session) {
     output$Player1Box <- renderInfoBox({
         infoBox(
             title = 'Average FPTS', 
-            value = round(unlist(game_info %>% filter(athlete_display_name == input$Player1) %>% select(fantasy_pts)) %>% mean(), 1),
+            value = round(unlist(data %>% filter(athlete_display_name == input$Player1) %>% select(fantasy_pts)) %>% mean(), 1),
             # subtitle = input$Player1,
-            # icon = icon('fa-basketball'),
+            icon = icon('chart-column'),
             color = 'light-blue',
             width = 6,
             fill = TRUE
@@ -111,7 +136,7 @@ server <- function(input, output, session) {
             title = 'Previous 10 Game FPTS Average', 
             value = round(
                 unlist(
-                    game_info %>% 
+                    data %>% 
                         filter(athlete_display_name == input$Player1) %>% 
                         select(fantasy_pts) %>% 
                         tail(10)
@@ -120,7 +145,7 @@ server <- function(input, output, session) {
                 1
             ),
             # subtitle = input$Player1,
-            # icon = icon('fa-basketball'),
+            icon = icon('chart-column'),
             color = 'light-blue',
             width = 6,
             fill = TRUE
