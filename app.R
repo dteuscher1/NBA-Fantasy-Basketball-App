@@ -4,10 +4,18 @@ library(shinydashboard)
 library(tidyverse)
 library(DT)
 library(lubridate)
+library(zoo)
 
 data <- read.csv("game_stats.csv") %>% 
     mutate(date = str_extract(date, "[0-9\\-]+"), 
            date = ymd(date) - 1)
+moving_average <- function(df, width){
+  N <- nrow(df)
+  df %>%
+    transmute(Game = rollmean(1:N, k = width, fill = NA),
+              Fantasy_Pts = rollmean(fantasy_pts, width,fill = NA))
+}
+
 ui <- dashboardPage(
     dashboardHeader(title = "Fantasy Basketball"),
     dashboardSidebar(
@@ -44,7 +52,7 @@ ui <- dashboardPage(
                     column(
                         width = 6,
                         column(
-                            width = 6,
+                            width = 12,
                             selectInput(
                                 inputId = 'Player1', 
                                 label = 'Player', 
@@ -53,19 +61,25 @@ ui <- dashboardPage(
                             # Add metrics here
                             conditionalPanel(
                                 condition = "input.Player1 != ''",
-                                infoBoxOutput('Player1Box'),
-                                infoBoxOutput('Player1Box10')
-                            )
+                                column( width = 6,
+                                  infoBoxOutput('Player1Box')
+                                ),
+                                column(width = 6,
+                                  infoBoxOutput('Player1Box10')
+                                )
+                            ),
+                            actionButton('update2', 'Update')
                         ),
                         column(
                             width = 6,
-                            selectInput('x', 'Player', unique(sort(data$athlete_display_name)))
+                            selectInput('Player2', 'Player', unique(sort(data$athlete_display_name)))
                             # Add metrics here
                         )
                     ),
                     column(
-                        width = 6
-                        # Add graph here
+                        width = 6,
+                        plotOutput("moving_average")
+                        
                     )
                 )
             )
@@ -114,6 +128,13 @@ server <- function(input, output, session) {
           arrange(desc(avg))
       }
     })
+    plot_ma <- eventReactive(input$update2, {
+      data %>%
+        filter(athlete_display_name == input$Player1) %>%
+        moving_average(5) %>%
+        ggplot(aes(Game, Fantasy_Pts)) + geom_line()
+      
+    })
     
     output$selected <- renderDataTable({
         datatable(rplot_selected(), rownames = FALSE, options = list(scrollX = '400px'))
@@ -124,8 +145,8 @@ server <- function(input, output, session) {
             title = 'Average FPTS', 
             value = round(unlist(data %>% filter(athlete_display_name == input$Player1) %>% select(fantasy_pts)) %>% mean(), 1),
             # subtitle = input$Player1,
-            icon = icon('chart-column'),
-            color = 'light-blue',
+            #icon = icon('chart-column'),
+            #color = 'light-blue',
             width = 6,
             fill = TRUE
         )
@@ -137,7 +158,7 @@ server <- function(input, output, session) {
             value = round(
                 unlist(
                     data %>% 
-                        filter(athlete_display_name == input$Player1) %>% 
+                        filter(athlete_display_name == input$Player2) %>% 
                         select(fantasy_pts) %>% 
                         tail(10)
                 ) %>% 
@@ -145,13 +166,16 @@ server <- function(input, output, session) {
                 1
             ),
             # subtitle = input$Player1,
-            icon = icon('chart-column'),
-            color = 'light-blue',
+            #icon = icon('chart-column'),
+            #color = 'light-blue',
             width = 6,
             fill = TRUE
         )
     })
     
+    output$moving_average <- renderPlot(plot_ma())
+    
 }
+
 
 shinyApp(ui = ui, server = server)
