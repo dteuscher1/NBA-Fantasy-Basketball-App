@@ -41,4 +41,7 @@ season_box_scores <- season_box_scores %>% mutate(fpts = fpts(.))
 
 all_games <- season_box_scores %>% group_by(game_id, team_id) %>% group_split()
 
+filename <- paste0("fantasy_data_", Sys.Date())
+write.csv(all_games, file = filename)
+
 # Need to see if we can do this by season...
