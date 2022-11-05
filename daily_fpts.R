@@ -46,3 +46,10 @@ filename <- paste0("fantasy_data_", Sys.Date())
 write.csv(all_games, file = filename)
 
 # Need to see if we can do this by season...
+# update_nba_db(force_rebuild = 2023)
+
+nba_commonteamroster(season = 2021)$CommonTeamRoster %>% View()
+
+# Webscrape full rosters from basketball-reference? 
+# It at least lists the inactive players...
+
