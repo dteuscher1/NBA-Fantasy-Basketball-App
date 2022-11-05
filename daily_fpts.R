@@ -1,5 +1,6 @@
 library(dplyr)
 library(hoopR)
+library(tidyverse)
 
 fpts <- function(df){
     df$fgm*2 +
