@@ -16,8 +16,9 @@ fpts <- function(df){
     df$pts   
 }
 
-season_box_scores <- load_nba_player_box(2022) %>% 
-  select(athlete_display_name, team_name, team_id, game_date, game_id, fg, fg3, ft, reb, ast, stl, blk, to, pts)
+season_box_scores <- load_nba_player_box(2023) %>% 
+  select(athlete_display_name, team_name, team_id, game_date, game_id, fg, 
+         fg3, ft, reb, ast, stl, blk, to, pts)
 
 season_box_scores <- season_box_scores %>% 
   separate(fg, c('fgm', 'fga'), sep = "-", convert = TRUE, extra = "drop") %>% 
@@ -42,13 +43,13 @@ season_box_scores <- season_box_scores %>% mutate(fpts = fpts(.))
 
 all_games <- season_box_scores %>% group_by(game_id, team_id) %>% group_split()
 
-filename <- paste0("fantasy_data_", Sys.Date())
-write.csv(all_games, file = filename)
+filename <- paste0("fantasy_data_", Sys.Date(), ".csv")
+write.csv(season_box_scores, file = filename, row.names = FALSE)
 
 # Need to see if we can do this by season...
 # update_nba_db(force_rebuild = 2023)
 
-nba_commonteamroster(season = 2021)$CommonTeamRoster %>% View()
+#nba_commonteamroster(season = 2021)$CommonTeamRoster %>% View()
 
 # Webscrape full rosters from basketball-reference? 
 # It at least lists the inactive players...
