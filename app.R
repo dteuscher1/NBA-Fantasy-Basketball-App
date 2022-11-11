@@ -9,7 +9,14 @@ library(zoo)
 data <- read.csv("game_stats.csv") %>% 
     mutate(date = str_extract(date, "[0-9\\-]+"), 
            date = ymd(date) - 1)
-summary_col_names <- c("Name", "Games Played", "Average Fantasy Points", 
+
+team_names <- data %>%
+  group_by(athlete_display_name, team_short_display_name) %>%
+  summarize(Games = n()) %>%
+  arrange(athlete_display_name, Games) %>%
+  top_n(1)
+
+summary_col_names <- c("Name", "Team", "Games Played", "Average Fantasy Points", 
                        "Variance of Fantasy Points", "Standardized Score")
 moving_average <- function(df, width){
   N <- nrow(df)
@@ -93,45 +100,6 @@ ui <- dashboardPage(
 server <- function(input, output, session) {
     
     rplot_selected <- eventReactive(input$update1, {
-        # if (input$time == "Game"){
-        #   if(input$number == "Season"){
-        #     output <- data %>%
-        #       group_by(athlete_display_name) %>%
-        #       summarize(games_played = n(),
-        #                 avg = round(mean(fantasy_pts), digits = 1),
-        #                 sd = round(sd(fantasy_pts), digits = 1),
-        #                 single_measure = round(avg/sd, digits = 1)) %>% 
-        #       arrange(desc(avg))
-        #     # output <- data %>% 
-        #     #   arrange(desc(date)) %>%
-        #     #   group_by(athlete_display_name) %>% 
-        #     #   top_n(input$number, date) %>%
-        #     #   summarize(games_played = n(),
-        #     #             avg = round(mean(fantasy_pts), digits = 1),
-        #     #             sd = round(sd(fantasy_pts), digits = 1),
-        #     #             single_measure = round(avg/sd, digits = 1)) %>% 
-        #     #   arrange(desc(avg)) 
-        #   } else {
-        #     output <- data %>%
-        #       group_by(athlete_display_name) %>%
-        #       summarize(games_played = n(),
-        #                 avg = round(mean(fantasy_pts), digits = 1),
-        #                 sd = round(sd(fantasy_pts), digits = 1),
-        #                 single_measure = round(avg/sd, digits = 1)) %>% 
-        #       arrange(desc(avg))
-        #     # num_games <- as.numeric(input$number)
-        #     # output <- data %>% 
-        #     #   arrange(desc(date)) %>%
-        #     #   group_by(athlete_display_name) %>% 
-        #     #   top_n(num_games, date) %>%
-        #     #   summarize(games_played = n(),
-        #     #             avg = round(mean(fantasy_pts), digits = 1),
-        #     #             sd = round(sd(fantasy_pts), digits = 1),
-        #     #             single_measure = round(avg/sd, digits = 1)) %>% 
-        #     #   arrange(desc(avg))
-        #     # output
-        #   }
-        # }
       if(input$time == "Days"){
         if(input$number == "Season"){
           output <- data %>%
@@ -140,7 +108,10 @@ server <- function(input, output, session) {
                       avg = round(mean(fantasy_pts), digits = 1),
                       sd = round(sd(fantasy_pts), digits = 1),
                       single_measure = round(avg/sd, digits = 1)) %>% 
-            arrange(desc(avg))
+            arrange(desc(avg)) %>%
+            inner_join(team_names, by = 'athlete_display_name') %>%
+            select(athlete_display_name, team_short_display_name, games_played,
+                   avg, sd, single_measure)
         } else{
           cut_date <- as.Date("2022-02-12") - as.numeric(input$number)
           output <- data %>% 
@@ -151,27 +122,25 @@ server <- function(input, output, session) {
                       avg = round(mean(fantasy_pts), digits = 1),
                       sd = round(sd(fantasy_pts), digits = 1),
                       single_measure = round(avg/sd, digits = 1)) %>% 
-            arrange(desc(avg)) 
+            arrange(desc(avg)) %>%
+            inner_join(team_names, by = 'athlete_display_name') %>%
+            select(athlete_display_name, team_short_display_name, games_played,
+                   avg, sd, single_measure)
         }
       } else{
           if(input$number == "Season"){
             output <- data %>%
               arrange(desc(date)) %>%
               group_by(athlete_display_name) %>%
-              top_n(input$number, date) %>%
               summarize(games_played = n(),
                         avg = round(mean(fantasy_pts), digits = 1),
                         sd = round(sd(fantasy_pts), digits = 1),
                         single_measure = round(avg/sd, digits = 1)) %>%
-              arrange(desc(avg))
+              arrange(desc(avg)) %>%
+              inner_join(team_names, by = 'athlete_display_name') %>%
+              select(athlete_display_name, team_short_display_name, games_played,
+                     avg, sd, single_measure)
           } else {
-            output <- data %>%
-              group_by(athlete_display_name) %>%
-              summarize(games_played = n(),
-                        avg = round(mean(fantasy_pts), digits = 1),
-                        sd = round(sd(fantasy_pts), digits = 1),
-                        single_measure = round(avg/sd, digits = 1)) %>%
-              arrange(desc(avg))
             num_games <- as.numeric(input$number)
             output <- data %>%
               arrange(desc(date)) %>%
@@ -181,7 +150,10 @@ server <- function(input, output, session) {
                         avg = round(mean(fantasy_pts), digits = 1),
                         sd = round(sd(fantasy_pts), digits = 1),
                         single_measure = round(avg/sd, digits = 1)) %>%
-              arrange(desc(avg))
+              arrange(desc(avg)) %>%
+              inner_join(team_names, by = 'athlete_display_name') %>%
+              select(athlete_display_name, team_short_display_name, games_played,
+                     avg, sd, single_measure)
           }
       }
     })
