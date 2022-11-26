@@ -43,7 +43,8 @@ season_box_scores <- season_box_scores %>% mutate(fpts = fpts(.))
 
 all_games <- season_box_scores %>% group_by(game_id, team_id) %>% group_split()
 
-filename <- paste0("fantasy_data_", Sys.Date(), ".csv")
+print(Sys.time())
+filename <- paste0("/Users/davidteuscher/Documents/Statistics/Basketball/NBA-Fantasy-Basketball-App/fantasy_data_", Sys.time(), ".csv")
 write.csv(season_box_scores, file = filename, row.names = FALSE)
 
 # Need to see if we can do this by season...
