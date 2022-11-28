@@ -19,6 +19,7 @@ team_names <- data %>%
 summary_col_names <- c("Name", "Team", "Games Played", "Average Fantasy Points", 
                        "Variance of Fantasy Points", "Standardized Score")
 moving_average <- function(df, width){
+  width <- as.numeric(width)
   N <- nrow(df)
   df %>%
     transmute(Game = rollmean(1:N, k = width, fill = NA),
@@ -81,7 +82,8 @@ ui <- dashboardPage(
                         ),
                         column(
                             width = 6,
-                            selectInput('Player2', 'Player', unique(sort(data$athlete_display_name)))
+                            selectInput('Player2', 'Player', unique(sort(data$athlete_display_name))),
+                            selectInput('window', "Window for plot:", 2:20, selected = 5)
                             # Add metrics here
                         )
                     ),
@@ -160,8 +162,10 @@ server <- function(input, output, session) {
     plot_ma <- eventReactive(input$update2, {
       data %>%
         filter(athlete_display_name == input$Player1) %>%
-        moving_average(5) %>%
-        ggplot(aes(Game, Fantasy_Pts)) + geom_line()
+        moving_average(width = input$window) %>%
+        ggplot(aes(Game, Fantasy_Pts)) + geom_line() +
+        labs(x = "Game Number", y = "Fantasy Points", caption = paste0(input$window, " game window")) +
+        theme_minimal()
       
     })
     
