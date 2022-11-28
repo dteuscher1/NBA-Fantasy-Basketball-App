@@ -160,10 +160,18 @@ server <- function(input, output, session) {
       }
     })
     plot_ma <- eventReactive(input$update2, {
-      data %>%
+      player1 <- data %>%
         filter(athlete_display_name == input$Player1) %>%
         moving_average(width = input$window) %>%
-        ggplot(aes(Game, Fantasy_Pts)) + geom_line() +
+        mutate(Player = input$Player1)
+      
+      player2 <- data %>%
+        filter(athlete_display_name == input$Player2) %>%
+        moving_average(width = input$window) %>%
+        mutate(Player = input$Player2)
+      
+      player1 %>% bind_rows(player2) %>%
+        ggplot(aes(Game, Fantasy_Pts, color = Player)) + geom_line() +
         labs(x = "Game Number", y = "Fantasy Points", caption = paste0(input$window, " game window")) +
         theme_minimal()
       
