@@ -6,12 +6,15 @@ library(DT)
 library(lubridate)
 library(zoo)
 
-data <- read.csv("game_stats.csv") %>% 
-    mutate(date = str_extract(date, "[0-9\\-]+"), 
-           date = ymd(date) - 1)
+#data <- read.csv("game_stats.csv") %>% 
+#    mutate(date = str_extract(date, "[0-9\\-]+"), 
+#           date = ymd(date) - 1)
+data <- read.csv("fantasy_data_2022-11-28.csv") %>% 
+      mutate(date = ymd(game_date) - 1) %>%
+  rename(fantasy_pts = fpts)
 
 team_names <- data %>%
-  group_by(athlete_display_name, team_short_display_name) %>%
+  group_by(athlete_display_name, team_name) %>%
   summarize(Games = n()) %>%
   arrange(athlete_display_name, Games) %>%
   top_n(1)
@@ -112,7 +115,7 @@ server <- function(input, output, session) {
                       single_measure = round(avg/sd, digits = 1)) %>% 
             arrange(desc(avg)) %>%
             inner_join(team_names, by = 'athlete_display_name') %>%
-            select(athlete_display_name, team_short_display_name, games_played,
+            select(athlete_display_name, team_name, games_played,
                    avg, sd, single_measure)
         } else{
           cut_date <- as.Date("2022-02-12") - as.numeric(input$number)
@@ -126,7 +129,7 @@ server <- function(input, output, session) {
                       single_measure = round(avg/sd, digits = 1)) %>% 
             arrange(desc(avg)) %>%
             inner_join(team_names, by = 'athlete_display_name') %>%
-            select(athlete_display_name, team_short_display_name, games_played,
+            select(athlete_display_name, team_name, games_played,
                    avg, sd, single_measure)
         }
       } else{
@@ -140,7 +143,7 @@ server <- function(input, output, session) {
                         single_measure = round(avg/sd, digits = 1)) %>%
               arrange(desc(avg)) %>%
               inner_join(team_names, by = 'athlete_display_name') %>%
-              select(athlete_display_name, team_short_display_name, games_played,
+              select(athlete_display_name, team_name, games_played,
                      avg, sd, single_measure)
           } else {
             num_games <- as.numeric(input$number)
@@ -154,7 +157,7 @@ server <- function(input, output, session) {
                         single_measure = round(avg/sd, digits = 1)) %>%
               arrange(desc(avg)) %>%
               inner_join(team_names, by = 'athlete_display_name') %>%
-              select(athlete_display_name, team_short_display_name, games_played,
+              select(athlete_display_name, team_name, games_played,
                      avg, sd, single_measure)
           }
       }
