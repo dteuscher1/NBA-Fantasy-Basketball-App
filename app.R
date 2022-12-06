@@ -9,7 +9,7 @@ library(zoo)
 #data <- read.csv("game_stats.csv") %>% 
 #    mutate(date = str_extract(date, "[0-9\\-]+"), 
 #           date = ymd(date) - 1)
-data <- read.csv("fantasy_data_2022-11-28.csv") %>% 
+data <- read.csv("fantasy_data_2022-12-05.csv") %>% 
       mutate(date = ymd(game_date) - 1) %>%
   rename(fantasy_pts = fpts)
 
@@ -94,6 +94,10 @@ ui <- dashboardPage(
                         width = 6,
                         plotOutput("moving_average")
                         
+                    ),
+                    column(
+                      width = 12,
+                      DT::dataTableOutput("compare")
                     )
                 )
             )
@@ -180,11 +184,34 @@ server <- function(input, output, session) {
       
     })
     
+    compare <- eventReactive(input$update2, {
+      df <- data %>% filter(athlete_display_name %in% c(input$Player1, input$Player2)) %>%
+        group_by(athlete_display_name) %>%
+        summarize(fantasy_pts = mean(fantasy_pts),
+                  points = mean(pts),
+                  reb = mean(reb),
+                  ast = mean(ast),
+                  stl = mean(stl),
+                  blk = mean(blk), 
+                  to = mean(to)
+        )
+      
+      col_name <- pull(df, athlete_display_name)
+      df <- data.frame(t(df[,-1]))
+      names(df) <- col_name
+      row_names <- c("Fantasy Points", "Points", "Rebounds", "Assists", "Steals", "Blocks", "Turnovers")
+      row.names(df) <- row_names
+      round(df, digits = 2)
+    })
+    
     output$selected <- renderDataTable({
         datatable(rplot_selected(), rownames = FALSE, options = list(scrollX = '400px'),
                   colnames = summary_col_names, class = 'cell-border stripe')
     })
     
+    output$compare <- renderDataTable({
+      datatable(compare(), rownames = TRUE, options = list(scrollX = '400px'), class = 'cell-border stripe')
+    })
     output$Player1Box <- renderInfoBox({
         infoBox(
             title = 'Average FPTS', 
@@ -224,3 +251,4 @@ server <- function(input, output, session) {
 
 
 shinyApp(ui = ui, server = server)
+
