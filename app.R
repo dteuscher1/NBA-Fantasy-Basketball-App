@@ -109,7 +109,7 @@ ui <- dashboardPage(
                     ),
                     column(
                       width = 12,
-                      DT::dataTableOutput("compare")
+                      gt::gt_output("compare")
                     )
                 )
             )
@@ -213,7 +213,7 @@ server <- function(input, output, session) {
       names(df) <- col_name
       row_names <- c("Fantasy Points", "Points", "Rebounds", "Assists", "Steals", "Blocks", "Turnovers")
       row.names(df) <- row_names
-      round(df, digits = 2)
+      df <- round(df, digits = 2)
     })
     
     output$selected <- renderDataTable({
@@ -221,8 +221,8 @@ server <- function(input, output, session) {
                   colnames = summary_col_names, class = 'cell-border stripe')
     })
     
-    output$compare <- renderDataTable({
-      datatable(compare(), rownames = TRUE, options = list(scrollX = '400px'), class = 'cell-border stripe')
+    output$compare <- render_gt({
+      gt(compare(), rownames_to_stub = TRUE)
     })
     output$Player1Box <- renderInfoBox({
         infoBox(
