@@ -1,3 +1,14 @@
+## Test Cases to make sure the app is correct:
+# 1. Check the player table with Days/Season option
+# 2. Check the player table with Days/ 1 game
+# 3. Check the player table with Days/ 5 games
+# 4. Check the player table with Game/Season option
+# 5. Check the player table with Game/1 game
+# 6. Check the player table with Game/ 5 game
+# 7. Check the player information for player compare shows up
+# 8. Check that the graph displays the two players
+
+
 library(shiny)
 library(shinythemes)
 library(shinydashboard)
@@ -6,10 +17,11 @@ library(DT)
 library(lubridate)
 library(zoo)
 
+
 #data <- read.csv("game_stats.csv") %>% 
 #    mutate(date = str_extract(date, "[0-9\\-]+"), 
 #           date = ymd(date) - 1)
-data <- read.csv("fantasy_data_2022-12-05.csv") %>% 
+data <- read.csv("fantasy_data_2023-01-20.csv") %>% 
       mutate(date = ymd(game_date) - 1) %>%
   rename(fantasy_pts = fpts)
 
