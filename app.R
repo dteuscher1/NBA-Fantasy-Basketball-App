@@ -8,6 +8,8 @@
 # 7. Check the player information for player compare shows up
 # 8. Check that the graph displays the two players
 
+# Last updated: 20.01.23
+######################################################################
 
 library(shiny)
 library(shinythemes)
@@ -16,12 +18,13 @@ library(tidyverse)
 library(DT)
 library(lubridate)
 library(zoo)
+library(gt)
 
 
 #data <- read.csv("game_stats.csv") %>% 
 #    mutate(date = str_extract(date, "[0-9\\-]+"), 
 #           date = ymd(date) - 1)
-data <- read.csv("fantasy_data_2023-01-20.csv") %>% 
+data <- read.csv("fantasy_data.csv") %>% 
       mutate(date = ymd(game_date) - 1) %>%
   rename(fantasy_pts = fpts)
 
@@ -214,6 +217,22 @@ server <- function(input, output, session) {
       row_names <- c("Fantasy Points", "Points", "Rebounds", "Assists", "Steals", "Blocks", "Turnovers")
       row.names(df) <- row_names
       df <- round(df, digits = 2)
+      names(df) <- c("player1", "player2")
+      out <- gt(df, rownames_to_stub = TRUE) %>%
+        tab_style(
+          style = list(cell_fill(color = "#228B22"),
+                       cell_text(color = "white")),
+          locations = cells_body(columns = player1,
+                                 rows = player1 > player2)
+        ) %>%
+        tab_style(
+          style = list(cell_fill(color = "#228B22"),
+                       cell_text(color = "white")),
+          locations = cells_body(columns = player2,
+                                 rows = player2 > player1) 
+        ) %>%
+        cols_label(player1 = input$Player1,
+                   player2 = input$Player2)
     })
     
     output$selected <- renderDataTable({
@@ -222,7 +241,7 @@ server <- function(input, output, session) {
     })
     
     output$compare <- render_gt({
-      gt(compare(), rownames_to_stub = TRUE)
+      compare()
     })
     output$Player1Box <- renderInfoBox({
         infoBox(
