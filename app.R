@@ -78,40 +78,49 @@ ui <- dashboardPage(
                 br(),
                 fluidRow(
                     column(
-                        width = 6,
+                        width = 12,
                         column(
-                            width = 12,
+                            width = 4,
                             selectInput(
                                 inputId = 'Player1', 
                                 label = 'Player', 
                                 choices = unique(sort(data$athlete_display_name))
-                            ),
-                            # Add metrics here
-                            conditionalPanel(
-                                condition = "input.Player1 != ''",
-                                column( width = 6,
-                                  infoBoxOutput('Player1Box')
-                                ),
-                                column(width = 6,
-                                  infoBoxOutput('Player1Box10')
-                                )
-                            ),
+                            )),
+                        column(width = 4,
+                            # # Add metrics here
+                            # conditionalPanel(
+                            #     condition = "input.Player1 != ''",
+                            #     column( width = 6,
+                            #       infoBoxOutput('Player1Box')
+                            #     ),
+                            #     column(width = 6,
+                            #       infoBoxOutput('Player1Box10')
+                            #     )
+                            # ),
+                            selectInput('Player2', 'Player', unique(sort(data$athlete_display_name)))),
+                        column(width = 4,
+                            selectInput('window', "Window for plot:", 2:20, selected = 5)),
+                        column(width = 4,
                             actionButton('update2', 'Update')
                         ),
-                        column(
-                            width = 6,
-                            selectInput('Player2', 'Player', unique(sort(data$athlete_display_name))),
-                            selectInput('window', "Window for plot:", 2:20, selected = 5)
-                            # Add metrics here
-                        )
+                        br(),
+                        # ),
+                        # column(
+                        #     width = 6,
+                        #     selectInput('Player2', 'Player', unique(sort(data$athlete_display_name))),
+                        #     selectInput('window', "Window for plot:", 2:20, selected = 5)
+                        #     # Add metrics here
+                        # )
                     ),
                     column(
-                        width = 6,
+                        width = 12,
+                        style='padding-left:10px; padding-right:10px; padding-top:10px; padding-bottom:10px',
                         plotOutput("moving_average")
                         
                     ),
                     column(
                       width = 12,
+                      style='padding-left:0px; padding-right:1px; padding-top:5px; padding-bottom:5px',
                       gt::gt_output("compare")
                     )
                 )
