@@ -220,28 +220,56 @@ server <- function(input, output, session) {
                   to = mean(to)
         )
       
-      col_name <- pull(df, athlete_display_name)
-      df <- data.frame(t(df[,-1]))
-      names(df) <- col_name
-      row_names <- c("Fantasy Points", "Points", "Rebounds", "Assists", "Steals", "Blocks", "Turnovers")
-      row.names(df) <- row_names
+      row_name <- pull(df, athlete_display_name)
+      df <- data.frame(df[,-1])
+      row.names(df) <- row_name
+      col_names <- c("Fantasy_Points", "Points", "Rebounds", "Assists", "Steals", "Blocks", "Turnovers")
+      names(df) <- col_names
       df <- round(df, digits = 2)
-      names(df) <- c("player1", "player2")
       out <- gt(df, rownames_to_stub = TRUE) %>%
         tab_style(
           style = list(cell_fill(color = "#228B22"),
                        cell_text(color = "white")),
-          locations = cells_body(columns = player1,
-                                 rows = player1 > player2)
+          locations = cells_body(columns = Fantasy_Points,
+                                 rows = Fantasy_Points == max(Fantasy_Points))
         ) %>%
         tab_style(
           style = list(cell_fill(color = "#228B22"),
                        cell_text(color = "white")),
-          locations = cells_body(columns = player2,
-                                 rows = player2 > player1) 
+          locations = cells_body(columns = Points,
+                                 rows = Points == max(Points)) 
         ) %>%
-        cols_label(player1 = input$Player1,
-                   player2 = input$Player2)
+        tab_style(
+          style = list(cell_fill(color = "#228B22"),
+                       cell_text(color = "white")),
+          locations = cells_body(columns = Rebounds,
+                                 rows = Rebounds == max(Rebounds)) 
+        ) %>%
+        tab_style(
+          style = list(cell_fill(color = "#228B22"),
+                       cell_text(color = "white")),
+          locations = cells_body(columns = Assists,
+                                 rows = Assists == max(Assists)) 
+        ) %>%
+        tab_style(
+          style = list(cell_fill(color = "#228B22"),
+                       cell_text(color = "white")),
+          locations = cells_body(columns = Steals,
+                                 rows = Steals == max(Steals)) 
+        ) %>%
+        tab_style(
+          style = list(cell_fill(color = "#228B22"),
+                       cell_text(color = "white")),
+          locations = cells_body(columns = Blocks,
+                                 rows = Blocks == max(Blocks)) 
+        ) %>%
+        tab_style(
+          style = list(cell_fill(color = "#D22B2B"),
+                       cell_text(color = "white")),
+          locations = cells_body(columns = Turnovers,
+                                 rows = Turnovers == max(Turnovers)) 
+        ) %>%
+        cols_label(Fantasy_Points = "Fantasy Points")
     })
     
     output$selected <- renderDataTable({
