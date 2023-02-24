@@ -113,7 +113,9 @@ ui <- dashboardPage(
                         # )
                     ),
                     column(
-                        width = 12,
+                        width = 8,
+                        align = 'center',
+                        offset = 2,
                         style='padding-left:10px; padding-right:10px; padding-top:10px; padding-bottom:10px',
                         plotOutput("moving_average")
                         
@@ -122,7 +124,14 @@ ui <- dashboardPage(
                       width = 12,
                       style='padding-left:0px; padding-right:1px; padding-top:5px; padding-bottom:5px',
                       gt::gt_output("compare")
-                    )
+                    ),
+                    column(
+                      width = 8,
+                      align = 'center',
+                      offset = 2,
+                      style='padding-left:10px; padding-right:10px; padding-top:10px; padding-bottom:10px',
+                      plotOutput("plot_density")
+                    )  
                 )
             )
         )
@@ -206,6 +215,15 @@ server <- function(input, output, session) {
         labs(x = "Game Number", y = "Fantasy Points", caption = paste0(input$window, " game window")) +
         theme_minimal()
       
+    })
+    
+    plot_density <- eventReactive(input$update2, {
+      df <- data %>% filter(athlete_display_name %in% c(input$Player1, input$Player2))
+      ggplot(df, aes(x = fantasy_pts, color = athlete_display_name)) + 
+        stat_density(geom = "line", position = 'identity') +
+        scale_color_discrete(name = "Player") +
+        theme_minimal() + 
+        labs(x = "Fantasy Points", y = "Density")
     })
     
     compare <- eventReactive(input$update2, {
@@ -314,6 +332,8 @@ server <- function(input, output, session) {
     })
     
     output$moving_average <- renderPlot(plot_ma())
+    
+    output$plot_density <- renderPlot(plot_density())
     
 }
 

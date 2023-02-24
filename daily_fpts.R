@@ -17,7 +17,7 @@ fpts <- function(df){
 }
 
 season_box_scores <- load_nba_player_box(2023) %>% 
-  select(athlete_display_name, team_name, team_id, game_date, game_id, fg, 
+  select(athlete_display_name, team_name, team_abbreviation, team_id, game_date, game_id, fg, 
          fg3, ft, reb, ast, stl, blk, to, pts)
 
 season_box_scores <- season_box_scores %>% 
