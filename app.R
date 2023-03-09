@@ -26,10 +26,26 @@ library(gt)
 #           date = ymd(date) - 1)
 data <- read.csv("fantasy_data.csv") %>% 
       mutate(date = ymd(game_date) - 1) %>%
+  filter(!(team_abbreviation  %in% c("GIA", "LEB"))) %>%
+  mutate(team_abbreviation = ifelse(team_abbreviation == "UTAH", "UTA", 
+                                    ifelse(team_abbreviation == "GS", "GSW", 
+                                           ifelse(team_abbreviation == "NY", "NYK",
+                                                  ifelse(team_abbreviation == "PHI", "PHL",
+                                                         ifelse(team_abbreviation == "WSH", "WAS",
+                                                                ifelse(team_abbreviation == "NO", "NOP",
+                                                                       ifelse(team_abbreviation == "SA", "SAS",
+                                                                              ifelse(team_abbreviation == "PHX", "PHO", team_abbreviation))))))))) %>%
   rename(fantasy_pts = fpts)
 
+rosters <- read.csv("team_rosters.csv") 
 team_names <- data %>%
   group_by(athlete_display_name, team_name) %>%
+  summarize(Games = n()) %>%
+  arrange(athlete_display_name, Games) %>%
+  top_n(1)
+
+team_abbreviations <-  data %>%
+  group_by(athlete_display_name, team_abbreviation) %>%
   summarize(Games = n()) %>%
   arrange(athlete_display_name, Games) %>%
   top_n(1)
@@ -49,7 +65,8 @@ ui <- dashboardPage(
     dashboardSidebar(
         sidebarMenu(
             menuItem("Intro", tabName = "intro", icon = icon("chart-line")),
-            menuItem("Compare", tabName = "compare", icon = icon("calculator"))
+            menuItem("Compare", tabName = "compare", icon = icon("calculator")),
+            menuItem("Players", tabName = "players", icon = icon("person"))
         )
     ),
     dashboardBody(
@@ -133,6 +150,19 @@ ui <- dashboardPage(
                       plotOutput("plot_density")
                     )  
                 )
+            ),
+            tabItem(tabName = "players",
+                    box(
+                      width = 5,
+                      selectInput('available', "Available or all Players", c("Available", "All Players"), "Available"),
+                      selectInput('number', "Select a number of games", c(1:82, "Season"), "Season"),
+                      actionButton('update3', 'Update')
+                    ),
+                    fluidRow(
+                      box(width = 12,
+                          DT::dataTableOutput("box")
+                      )
+                    )  
             )
         )
     )
@@ -197,6 +227,42 @@ server <- function(input, output, session) {
               select(athlete_display_name, team_name, games_played,
                      avg, sd, single_measure)
           }
+      }
+    })
+    
+    roster_table <- eventReactive(input$update3, {
+      if(input$number == "Season"){
+        output <- data %>%
+          arrange(desc(date)) %>%
+          group_by(athlete_display_name) %>%
+          summarize(games_played = n(),
+                    avg = round(mean(fantasy_pts), digits = 1),
+                    sd = round(sd(fantasy_pts), digits = 1),
+                    single_measure = round(avg/sd, digits = 1)) %>%
+          arrange(desc(avg)) %>%
+          inner_join(team_names, by = 'athlete_display_name') %>%
+          inner_join(team_abbreviations, by = 'athlete_display_name') %>%
+          select(athlete_display_name, team_name, team_abbreviation, games_played,
+                 avg, sd, single_measure) %>%
+          left_join(rosters, by = c('athlete_display_name' = 'Player_Name', 'team_abbreviation' = 'NBA.Team'), multiple = "all") %>%
+          select(-team_abbreviation, -X)
+      } else {
+        num_games <- as.numeric(input$number)
+        output <- data %>%
+          arrange(desc(date)) %>%
+          group_by(athlete_display_name) %>%
+          top_n(num_games, date) %>%
+          summarize(games_played = n(),
+                    avg = round(mean(fantasy_pts), digits = 1),
+                    sd = round(sd(fantasy_pts), digits = 1),
+                    single_measure = round(avg/sd, digits = 1)) %>%
+          arrange(desc(avg)) %>%
+          inner_join(team_names, by = 'athlete_display_name') %>%
+          inner_join(team_abbreviations, by = 'athlete_display_name') %>%
+          select(athlete_display_name, team_name, team_abbreviation, games_played,
+                 avg, sd, single_measure) %>%
+          left_join(rosters, by = c('athlete_display_name' = 'Player_Name', 'team_abbreviation' = 'NBA.Team'), multiple = "all") %>%
+          select(-team_abbreviation, -X)
       }
     })
     plot_ma <- eventReactive(input$update2, {
@@ -334,6 +400,9 @@ server <- function(input, output, session) {
     output$moving_average <- renderPlot(plot_ma())
     
     output$plot_density <- renderPlot(plot_density())
+    
+    output$box <- renderDataTable(datatable(roster_table(), rownames = FALSE, options = list(scrollX = '400px'),
+                                            colnames = c(summary_col_names, "Team"), class = 'cell-border stripe'))
     
 }
 
