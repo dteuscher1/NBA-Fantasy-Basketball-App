@@ -358,7 +358,7 @@ server <- function(input, output, session) {
     
     output$selected <- renderDataTable({
         datatable(rplot_selected(), rownames = FALSE, options = list(scrollX = '400px'),
-                  colnames = summary_col_names, class = 'cell-border stripe')
+                  colnames = summary_col_names, class = 'cell-border stripe', filter = 'top')
     })
     
     output$compare <- render_gt({
@@ -402,7 +402,7 @@ server <- function(input, output, session) {
     output$plot_density <- renderPlot(plot_density())
     
     output$box <- renderDataTable(datatable(roster_table(), rownames = FALSE, options = list(scrollX = '400px'),
-                                            colnames = c(summary_col_names, "Team"), class = 'cell-border stripe'))
+                                            colnames = c(summary_col_names, "Team"), class = 'cell-border stripe', filter = 'top'))
     
 }
 
