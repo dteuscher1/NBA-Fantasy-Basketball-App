@@ -286,7 +286,7 @@ server <- function(input, output, session) {
     plot_density <- eventReactive(input$update2, {
       df <- data %>% filter(athlete_display_name %in% c(input$Player1, input$Player2))
       ggplot(df, aes(x = fantasy_pts, color = athlete_display_name)) + 
-        stat_density(geom = "line", position = 'identity') +
+        stat_density(geom = "line", position = 'identity', adjust = .5) +
         scale_color_discrete(name = "Player") +
         theme_minimal() + 
         labs(x = "Fantasy Points", y = "Density")
