@@ -80,7 +80,7 @@ ui <- dashboardPage(
                         ),
                         box(
                             width = 5,
-                            selectInput('time', "Choose a time period", c("Days", "Game"), "Days"),
+                            selectInput('time', "Choose a time period", c("Days", "Game")),
                             selectInput('number', "Select a number of days/games", c(1:82, "Season"), "Season"),
                             actionButton('update1', 'Update')
                         )),
@@ -154,8 +154,8 @@ ui <- dashboardPage(
             tabItem(tabName = "players",
                     box(
                       width = 5,
-                      selectInput('available', "Available or all Players", c("Available", "All Players"), "Available"),
-                      selectInput('number', "Select a number of games", c(1:82, "Season"), "Season"),
+                      selectInput('available', "Select all available players, all players from a team, or all players", c("All Players", unique(rosters$Team)), "Available"),
+                      selectInput('number3', "Select a number of games", c(1:82, "Season"), "Season"),
                       actionButton('update3', 'Update')
                     ),
                     fluidRow(
@@ -185,7 +185,7 @@ server <- function(input, output, session) {
             select(athlete_display_name, team_name, games_played,
                    avg, sd, single_measure)
         } else{
-          cut_date <- as.Date("2022-02-12") - as.numeric(input$number)
+          cut_date <- Sys.Date() - as.numeric(input$number)
           output <- data %>% 
             arrange(desc(date)) %>%
             group_by(athlete_display_name) %>% 
@@ -199,7 +199,7 @@ server <- function(input, output, session) {
             select(athlete_display_name, team_name, games_played,
                    avg, sd, single_measure)
         }
-      } else{
+      } else if(input$time == 'Game'){
           if(input$number == "Season"){
             output <- data %>%
               arrange(desc(date)) %>%
@@ -231,7 +231,7 @@ server <- function(input, output, session) {
     })
     
     roster_table <- eventReactive(input$update3, {
-      if(input$number == "Season"){
+      if(input$number3 == "Season"){
         output <- data %>%
           arrange(desc(date)) %>%
           group_by(athlete_display_name) %>%
@@ -247,7 +247,7 @@ server <- function(input, output, session) {
           left_join(rosters, by = c('athlete_display_name' = 'Player_Name', 'team_abbreviation' = 'NBA.Team'), multiple = "all") %>%
           select(-team_abbreviation, -X)
       } else {
-        num_games <- as.numeric(input$number)
+        num_games <- as.numeric(input$number3)
         output <- data %>%
           arrange(desc(date)) %>%
           group_by(athlete_display_name) %>%
@@ -263,6 +263,12 @@ server <- function(input, output, session) {
                  avg, sd, single_measure) %>%
           left_join(rosters, by = c('athlete_display_name' = 'Player_Name', 'team_abbreviation' = 'NBA.Team'), multiple = "all") %>%
           select(-team_abbreviation, -X)
+      }
+      if(input$available != "All Players"){
+        output1 <- output %>%
+          filter(Team == input$available)
+      } else{
+        output
       }
     })
     plot_ma <- eventReactive(input$update2, {
