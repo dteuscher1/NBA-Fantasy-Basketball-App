@@ -50,7 +50,7 @@ team_abbreviations <-  data %>%
   arrange(athlete_display_name, Games) %>%
   top_n(1)
 
-summary_col_names <- c("Name", "Team", "Games Played", "Average Fantasy Points", 
+summary_col_names <- c("Name", "Position", "Team", "Games Played", "Average Fantasy Points", 
                        "Variance of Fantasy Points", "Standardized Score")
 moving_average <- function(df, width){
   width <- as.numeric(width)
@@ -182,7 +182,8 @@ server <- function(input, output, session) {
                       single_measure = round(avg/sd, digits = 1)) %>% 
             arrange(desc(avg)) %>%
             inner_join(team_names, by = 'athlete_display_name') %>%
-            select(athlete_display_name, team_name, games_played,
+            inner_join(rosters %>% dplyr::select(Player_Name, Position), by = c('athlete_display_name' = 'Player_Name')) %>%
+            select(athlete_display_name, Position, team_name, games_played,
                    avg, sd, single_measure)
         } else{
           cut_date <- Sys.Date() - as.numeric(input$number)
@@ -196,7 +197,8 @@ server <- function(input, output, session) {
                       single_measure = round(avg/sd, digits = 1)) %>% 
             arrange(desc(avg)) %>%
             inner_join(team_names, by = 'athlete_display_name') %>%
-            select(athlete_display_name, team_name, games_played,
+            inner_join(rosters %>% dplyr::select(Player_Name, Position), by = c('athlete_display_name' = 'Player_Name')) %>%
+            select(athlete_display_name, Position, team_name, games_played,
                    avg, sd, single_measure)
         }
       } else if(input$time == 'Game'){
@@ -209,8 +211,9 @@ server <- function(input, output, session) {
                         sd = round(sd(fantasy_pts), digits = 1),
                         single_measure = round(avg/sd, digits = 1)) %>%
               arrange(desc(avg)) %>%
-              inner_join(team_names, by = 'athlete_display_name') %>%
-              select(athlete_display_name, team_name, games_played,
+              inner_join(team_names, by = 'athlete_display_name')  %>%
+              inner_join(rosters %>% dplyr::select(Player_Name, Position), by = c('athlete_display_name' = 'Player_Name')) %>%
+              select(athlete_display_name, Position, team_name, games_played,
                      avg, sd, single_measure)
           } else {
             num_games <- as.numeric(input$number)
@@ -223,8 +226,9 @@ server <- function(input, output, session) {
                         sd = round(sd(fantasy_pts), digits = 1),
                         single_measure = round(avg/sd, digits = 1)) %>%
               arrange(desc(avg)) %>%
-              inner_join(team_names, by = 'athlete_display_name') %>%
-              select(athlete_display_name, team_name, games_played,
+              inner_join(team_names, by = 'athlete_display_name')  %>%
+              inner_join(rosters %>% dplyr::select(Player_Name, Position), by = c('athlete_display_name' = 'Player_Name')) %>%
+              select(athlete_display_name, Position, team_name, games_played,
                      avg, sd, single_measure)
           }
       }
@@ -245,7 +249,8 @@ server <- function(input, output, session) {
           select(athlete_display_name, team_name, team_abbreviation, games_played,
                  avg, sd, single_measure) %>%
           left_join(rosters, by = c('athlete_display_name' = 'Player_Name', 'team_abbreviation' = 'NBA.Team'), multiple = "all") %>%
-          select(-team_abbreviation, -X)
+          select(-team_abbreviation, -X) %>%
+          relocate(Position, .after = athlete_display_name)
       } else {
         num_games <- as.numeric(input$number3)
         output <- data %>%
@@ -262,13 +267,16 @@ server <- function(input, output, session) {
           select(athlete_display_name, team_name, team_abbreviation, games_played,
                  avg, sd, single_measure) %>%
           left_join(rosters, by = c('athlete_display_name' = 'Player_Name', 'team_abbreviation' = 'NBA.Team'), multiple = "all") %>%
-          select(-team_abbreviation, -X)
+          select(-team_abbreviation, -X) %>%
+          relocate(Position, .after = athlete_display_name)
       }
       if(input$available != "All Players"){
         output1 <- output %>%
-          filter(Team == input$available)
+          filter(Team == input$available) %>%
+          relocate(Position, .after = athlete_display_name)
       } else{
-        output
+        output %>%
+          relocate(Position, .after = athlete_display_name)
       }
     })
     plot_ma <- eventReactive(input$update2, {

@@ -1,0 +1,76 @@
+---
+title: "League Info"
+author: "David Teuscher"
+format: html
+editor: visual
+---
+
+```{python}
+from espn_api.basketball import League
+import pandas as pd
+```
+
+```{python}
+league = League(
+    league_id=472202235, 
+    year=2023, 
+    espn_s2='AEBorwQV%2F2TPoWagJQ%2FnQXm49nTkaNyq%2F119yvfirvwFl44JFngo3%2FPWx4Ck0Mot1lkSMIxaCJ%2Bj7Mjn1X%2BZT8Ti2K10S%2FRGElT8EDNo1R%2FRNJMlovd1Z%2FNtwQMsxCbXI1phegZwqNBsic53HRS9cl%2Bzd1mM6Khq7vAJb3iFgLYVJvMhqOL1t0KIRSJ4t0U7T%2Fi2ghTs4uN8taFQWUpBbAPV6lrtCXZswJk7WBri%2Bx2yUhuLGQCpd6zi1P4i2d8CoOaVj189bWI%2FvXmwnDn78bzeV%2F%2FEP%2F3PU4hPvwn7%2F7s4Yw%3D%3D', 
+    swid='{44CA7430-5856-48E3-85D1-48995BF4D412}'
+)
+```
+
+```{python}
+league.teams
+```
+
+```{python}
+free_agents = league.free_agents(size = 10000)
+```
+
+```{python}
+positions = ['PG', 'SG', 'SF', 'PF', 'C']
+players = []
+teams = []
+player_positions = []
+for i in range(len(league.teams)):
+    team = league.teams[i].team_name
+    roster = league.teams[i].roster
+    for j in range(len(roster)):
+        player_position = ",".join([pos for pos in roster[j].eligibleSlots if pos in positions])
+        players.append([roster[j].name, roster[j].proTeam, team, player_position])
+        teams.append(team)
+        player_positions.append(player_position)
+fa_info = []
+for i in range(len(free_agents)):
+    player_position = ",".join([pos for pos in free_agents[i].eligibleSlots if pos in positions])
+    fa_info.append([free_agents[i].name, free_agents[i].proTeam, 'Free Agent', player_position])
+```
+
+```{python}
+player_teams = pd.DataFrame(players, columns = ['Player_Name', 'NBA Team','Team', 'Position'])
+fa_players = pd.DataFrame(fa_info, columns = ['Player_Name', 'NBA Team', 'Team', 'Position'])
+all_players = pd.concat([player_teams, fa_players])
+```
+
+```{r}
+fantasy_data <- hoopR::load_nba_player_box(seasons = 2023)
+head(fantasy_data)
+```
+
+```{python}
+fantasy_data = r.fantasy_data
+combined = pd.merge(all_players, fantasy_data, left_on = 'NBA Team', right_on = 'team_abbreviation', how = 'left')
+
+combined.head()
+```
+
+```{r}
+library(reticulate)
+library(tidyverse)
+test_data <- py$all_players
+head(test_data)
+attempt <- fantasy_data %>%
+  inner_join(test_data, by = c('athlete_display_name' = 'Player_Name', 'team_abbreviation' = 'NBA Team'))
+
+write.csv(test_data, "team_rosters.csv")
+```
