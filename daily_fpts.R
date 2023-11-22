@@ -16,14 +16,26 @@ fpts <- function(df){
     df$pts   
 }
 
-season_box_scores <- load_nba_player_box(2023) %>% 
-  select(athlete_display_name, team_name, team_abbreviation, team_id, game_date, game_id, fg, 
-         fg3, ft, reb, ast, stl, blk, to, pts)
+season_box_scores <- load_nba_player_box(2024) %>% 
+  select(athlete_display_name, team_name, team_abbreviation, team_id, game_date, game_id,
+         field_goals_made, field_goals_attempted, three_point_field_goals_made, 
+         three_point_field_goals_attempted, free_throws_made, free_throws_attempted,
+         rebounds, assists, steals, blocks, turnovers, points)
 
-season_box_scores <- season_box_scores %>% 
-  separate(fg, c('fgm', 'fga'), sep = "-", convert = TRUE, extra = "drop") %>% 
-  separate(fg3, c('fg3m', 'fg3a'), sep = "-", convert = TRUE, extra = "drop") %>% 
-  separate(ft, c('ftm', 'fta'), sep = "-", convert = TRUE, extra = "drop") %>% 
+season_box_scores <- season_box_scores %>%
+  rename(fgm = field_goals_made,
+         fga = field_goals_attempted,
+         fg3m = three_point_field_goals_made,
+         fg3a = three_point_field_goals_attempted,
+         ftm = free_throws_made,
+         fta = free_throws_attempted,
+         reb = rebounds, 
+         ast = assists,
+         stl = steals,
+         blk = blocks,
+         to = turnovers,
+         pts = points) %>%
+  filter(!is.na(fgm), !is.na(fga)) %>%
   mutate(
     fgm = ifelse(is.na(fgm), 0, fgm),
     fga = ifelse(is.na(fga), 0, fga),
@@ -31,12 +43,12 @@ season_box_scores <- season_box_scores %>%
     fg3a = ifelse(is.na(fg3a), 0, fg3a),
     ftm = ifelse(is.na(ftm), 0, ftm),
     fta = ifelse(is.na(fta), 0, fta),
-    reb = as.numeric(gsub("--", "0", reb)),
-    ast = as.numeric(gsub("--", "0", ast)),
-    stl = as.numeric(gsub("--", "0", stl)),
-    blk = as.numeric(gsub("--", "0", blk)),
-    to = as.numeric(gsub("--", "0", to)),
-    pts = as.numeric(gsub("--", "0", pts))
+    reb = ifelse(is.na(reb), 0, reb),
+    ast = ifelse(is.na(ast), 0, ast),
+    stl = ifelse(is.na(stl), 0, stl),
+    blk = ifelse(is.na(blk), 0, blk),
+    to = ifelse(is.na(to), 0, to),
+    pts = ifelse(is.na(pts), 0, pts)
   )
 
 season_box_scores <- season_box_scores %>% mutate(fpts = fpts(.))

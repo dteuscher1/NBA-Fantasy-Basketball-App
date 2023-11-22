@@ -20,12 +20,12 @@ library(lubridate)
 library(zoo)
 library(gt)
 
-
 #data <- read.csv("game_stats.csv") %>% 
 #    mutate(date = str_extract(date, "[0-9\\-]+"), 
 #           date = ymd(date) - 1)
-data <- read.csv("fantasy_data.csv") %>% 
-      mutate(date = ymd(game_date) - 1) %>%
+data <- read.csv("https://raw.githubusercontent.com/dteuscher1/NBA-Fantasy-Basketball-App/main/fantasy_data.csv") %>% 
+  #read.csv("fantasy_data.csv") %>%    
+  mutate(date = ymd(game_date) - 1) %>%
   filter(!(team_abbreviation  %in% c("GIA", "LEB"))) %>%
   mutate(team_abbreviation = ifelse(team_abbreviation == "UTAH", "UTA", 
                                     ifelse(team_abbreviation == "GS", "GSW", 
@@ -422,4 +422,5 @@ server <- function(input, output, session) {
 
 
 shinyApp(ui = ui, server = server)
+
 
