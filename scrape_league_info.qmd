@@ -11,11 +11,21 @@ import pandas as pd
 ```
 
 ```{python}
+# Last year's league
+# league = League(
+#     league_id=472202235, 
+#     year=2023, 
+#     espn_s2='AEBorwQV%2F2TPoWagJQ%2FnQXm49nTkaNyq%2F119yvfirvwFl44JFngo3%2FPWx4Ck0Mot1lkSMIxaCJ%2Bj7Mjn1X%2BZT8Ti2K10S%2FRGElT8EDNo1R%2FRNJMlovd1Z%2FNtwQMsxCbXI1phegZwqNBsic53HRS9cl%2Bzd1mM6Khq7vAJb3iFgLYVJvMhqOL1t0KIRSJ4t0U7T%2Fi2ghTs4uN8taFQWUpBbAPV6lrtCXZswJk7WBri%2Bx2yUhuLGQCpd6zi1P4i2d8CoOaVj189bWI%2FvXmwnDn78bzeV%2F%2FEP%2F3PU4hPvwn7%2F7s4Yw%3D%3D', 
+#     swid='{44CA7430-5856-48E3-85D1-48995BF4D412}'
+# )
+```
+
+```{python}
 league = League(
-    league_id=472202235, 
-    year=2023, 
-    espn_s2='AEBorwQV%2F2TPoWagJQ%2FnQXm49nTkaNyq%2F119yvfirvwFl44JFngo3%2FPWx4Ck0Mot1lkSMIxaCJ%2Bj7Mjn1X%2BZT8Ti2K10S%2FRGElT8EDNo1R%2FRNJMlovd1Z%2FNtwQMsxCbXI1phegZwqNBsic53HRS9cl%2Bzd1mM6Khq7vAJb3iFgLYVJvMhqOL1t0KIRSJ4t0U7T%2Fi2ghTs4uN8taFQWUpBbAPV6lrtCXZswJk7WBri%2Bx2yUhuLGQCpd6zi1P4i2d8CoOaVj189bWI%2FvXmwnDn78bzeV%2F%2FEP%2F3PU4hPvwn7%2F7s4Yw%3D%3D', 
-    swid='{44CA7430-5856-48E3-85D1-48995BF4D412}'
+    league_id=1046453757, 
+    year=2024, 
+    espn_s2='AECu6vwVPxzXR7n39VJt0W3nC293dSyQZNDI1TLwUKzgWi9h%2FA80yl6NR9N%2BtTUxE3Svkd7UXeFpYkZHQWruYphpyAq%2FJ7xzKbw3lYIRez4cgn7JfBwjfwwRVndo2KbvntXQYqZOXZ5rT%2F3qSAIvdmP%2FlSw%2Bh%2F78nrxmWSrcNUCNta8KwZsz22Vg0QgmeH84zNAf36YjhjOaVVXnN0qdq9rPWe9aE7U7TVuac7KD0jWwAasJ8VnyVJ%2FAR2AT20LFDNVEFmB4ev9UHYPIA5o2t2M8qnW8ak%2BKHsi61gGSPzR6%2Bw%3D%3D', 
+    swid='{BB5A4BBF-E87B-40A9-8E5A-B5C29AC5DE67}'
 )
 ```
 
@@ -53,7 +63,8 @@ all_players = pd.concat([player_teams, fa_players])
 ```
 
 ```{r}
-fantasy_data <- hoopR::load_nba_player_box(seasons = 2023)
+library(hoopR)
+fantasy_data <- load_nba_player_box(seasons = most_recent_nba_season())
 head(fantasy_data)
 ```
 
@@ -66,11 +77,11 @@ combined.head()
 
 ```{r}
 library(reticulate)
-library(tidyverse)
+# library(tidyverse)
 test_data <- py$all_players
 head(test_data)
 attempt <- fantasy_data %>%
-  inner_join(test_data, by = c('athlete_display_name' = 'Player_Name', 'team_abbreviation' = 'NBA Team'))
+  dplyr::inner_join(test_data, by = c('athlete_display_name' = 'Player_Name', 'team_abbreviation' = 'NBA Team'))
 
 write.csv(test_data, "team_rosters.csv")
 ```
