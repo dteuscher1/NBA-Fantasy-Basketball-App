@@ -8,7 +8,7 @@ import pandas as pd
 
 n_games = 333
 season_data = []
-for i in range(1,n_games+1):
+for i in range(334,459):
     number_str = str(i)
     game_num = number_str.zfill(4)
     game_id_var = f'002230{game_num}'
@@ -19,7 +19,10 @@ for i in range(1,n_games+1):
       print(f'Getting game number {i}')
     
 season_df = pd.concat(season_data)   
-season_df.to_csv('usage_rates.csv')
+
+previous_games = pd.read_csv('usage_rates.csv')
+all_season_data = pd.concat([previous_games, season_df])
+all_season_data.to_csv('usage_rates.csv')
     
 yesterdays_games = leaguegamefinder.LeagueGameFinder(league_id_nullable='00', date_to_nullable='12/15/2023', date_from_nullable = '12/15/2023')
 ?leaguegamefinder.LeagueGameFinder()
