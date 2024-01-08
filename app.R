@@ -50,6 +50,8 @@ team_abbreviations <-  data %>%
   arrange(athlete_display_name, Games) %>%
   top_n(1)
 
+usage_rate <- read.csv("https://raw.githubusercontent.com/dteuscher1/NBA-Fantasy-Basketball-App/main/usage_rates.csv") %>%
+  dplyr::select(GAME_ID, PLAYER_ID, PLAYER_NAME, USG_PCT)
 summary_col_names <- c("Name", "Position", "Team", "Games Played", "Average Fantasy Points", 
                        "Variance of Fantasy Points", "Standardized Score")
 moving_average <- function(df, width){
@@ -66,7 +68,8 @@ ui <- dashboardPage(
         sidebarMenu(
             menuItem("Intro", tabName = "intro", icon = icon("chart-line")),
             menuItem("Compare", tabName = "compare", icon = icon("calculator")),
-            menuItem("Players", tabName = "players", icon = icon("person"))
+            menuItem("Players", tabName = "players", icon = icon("person")),
+            menuItem("Usage Rate", tabName = "usage")
         )
     ),
     dashboardBody(
@@ -163,7 +166,31 @@ ui <- dashboardPage(
                           DT::dataTableOutput("box")
                       )
                     )  
-            )
+            ),
+            tabItem(tabName = "usage",
+                    column(
+                      width = 12,
+                      column(
+                        width = 6,
+                        selectInput(
+                          inputId = 'Player3', 
+                          label = 'Player', 
+                          choices = unique(sort(data$athlete_display_name))
+                        )),
+                      column(width = 6,
+                             selectInput('Player4', 'Player', unique(sort(data$athlete_display_name)))),
+                      column(width = 3,
+                             actionButton('update4', 'Update')),
+                      br(),
+                    ),
+                    column(
+                      width = 8,
+                      align = 'center',
+                      offset = 2,
+                      style='padding-left:10px; padding-right:10px; padding-top:10px; padding-bottom:10px',
+                      plotOutput("usage_density")
+                    )  
+                  )
         )
     )
 )
@@ -306,6 +333,15 @@ server <- function(input, output, session) {
         labs(x = "Fantasy Points", y = "Density")
     })
     
+    usage_density <- eventReactive(input$update4, {
+      df <- usage_rate %>% filter(PLAYER_NAME %in% c(input$Player3, input$Player4))
+      ggplot(df, aes(x = USG_PCT, color = PLAYER_NAME)) + 
+        stat_density(geom = "line", position = 'identity', adjust = .5) +
+        scale_color_discrete(name = "Player") +
+        theme_minimal() + 
+        labs(x = "Usage Rate", y = "Density")
+    })
+    
     compare <- eventReactive(input$update2, {
       df <- data %>% filter(athlete_display_name %in% c(input$Player1, input$Player2)) %>%
         group_by(athlete_display_name) %>%
@@ -414,6 +450,8 @@ server <- function(input, output, session) {
     output$moving_average <- renderPlot(plot_ma())
     
     output$plot_density <- renderPlot(plot_density())
+    
+    output$usage_density <- renderPlot(usage_density())
     
     output$box <- renderDataTable(datatable(roster_table(), rownames = FALSE, options = list(scrollX = '400px'),
                                             colnames = c(summary_col_names, "Team"), class = 'cell-border stripe', filter = 'top'))
