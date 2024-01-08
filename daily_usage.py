@@ -23,6 +23,6 @@ for game in previous_day_games:
 
 usage_rate_df = pd.concat(usage_rate)
 
-season_data = pd.read_csv('usage_rate.csv')
+season_data = pd.read_csv('usage_rates.csv')
 all_season_data = pd.concat([season_data, usage_rate_df])
-all_season_data.to_csv('usage_rate.csv')
+all_season_data.to_csv('usage_rates.csv')
