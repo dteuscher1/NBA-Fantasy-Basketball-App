@@ -1,4 +1,22 @@
 "athlete_display_name","team_name","team_abbreviation","team_id","game_date","game_id","fgm","fga","fg3m","fg3a","ftm","fta","reb","ast","stl","blk","to","pts","fpts"
+"Jaden McDaniels","Timberwolves","MIN",16,2024-05-04,401657182,0,7,0,2,0,0,8,1,0,1,1,0,5
+"Rudy Gobert","Timberwolves","MIN",16,2024-05-04,401657182,3,6,0,0,0,0,13,3,1,3,0,6,41
+"Karl-Anthony Towns","Timberwolves","MIN",16,2024-05-04,401657182,8,13,2,4,2,4,4,3,0,0,1,20,31
+"Mike Conley","Timberwolves","MIN",16,2024-05-04,401657182,5,8,3,4,1,1,4,10,1,0,4,14,39
+"Anthony Edwards","Timberwolves","MIN",16,2024-05-04,401657182,17,29,3,7,6,6,7,3,1,2,1,43,74
+"Kyle Anderson","Timberwolves","MIN",16,2024-05-04,401657182,1,1,0,0,0,0,2,1,0,0,1,2,5
+"Naz Reid","Timberwolves","MIN",16,2024-05-04,401657182,7,11,2,4,0,1,4,3,1,0,3,16,28
+"Monte Morris","Timberwolves","MIN",16,2024-05-04,401657182,0,1,0,1,0,0,0,0,0,0,0,0,-1
+"Nickeil Alexander-Walker","Timberwolves","MIN",16,2024-05-04,401657182,2,6,1,5,0,0,0,0,0,0,3,5,-2
+"Aaron Gordon","Nuggets","DEN",7,2024-05-04,401657182,4,6,0,1,1,3,3,6,2,0,1,9,30
+"Michael Porter Jr.","Nuggets","DEN",7,2024-05-04,401657182,6,13,4,7,4,6,6,1,3,1,2,20,41
+"Nikola Jokic","Nuggets","DEN",7,2024-05-04,401657182,11,25,2,9,8,8,8,9,3,0,7,32,55
+"Jamal Murray","Nuggets","DEN",7,2024-05-04,401657182,6,14,2,4,3,3,1,4,0,0,1,17,24
+"Kentavious Caldwell-Pope","Nuggets","DEN",7,2024-05-04,401657182,2,4,2,4,0,0,2,3,2,1,1,6,26
+"Peyton Watson","Nuggets","DEN",7,2024-05-04,401657182,0,2,0,1,0,0,4,0,0,0,0,0,2
+"Justin Holiday","Nuggets","DEN",7,2024-05-04,401657182,1,3,1,3,0,0,5,0,1,0,0,3,12
+"Reggie Jackson","Nuggets","DEN",7,2024-05-04,401657182,2,3,1,1,0,0,3,1,1,0,0,5,16
+"Christian Braun","Nuggets","DEN",7,2024-05-04,401657182,3,5,1,1,0,0,2,0,0,0,0,7,11
 "P.J. Tucker","Clippers","LAC",12,2024-05-03,401655098,3,5,2,3,0,0,2,0,0,0,3,8,7
 "Paul George","Clippers","LAC",12,2024-05-03,401655098,6,18,2,10,4,4,11,5,1,1,2,18,39
 "Ivica Zubac","Clippers","LAC",12,2024-05-03,401655098,6,11,0,0,5,8,11,1,0,0,1,17,26
@@ -23,9 +41,9 @@
 "Dante Exum","Mavericks","DAL",6,2024-05-03,401655098,1,3,0,1,0,0,1,1,0,0,0,2,4
 "A.J. Lawson","Mavericks","DAL",6,2024-05-03,401655098,0,1,0,1,0,0,1,0,0,0,0,0,0
 "Jaden Hardy","Mavericks","DAL",6,2024-05-03,401655098,0,1,0,0,0,0,0,0,0,0,0,0,-1
-"Evan Mobley","Cavaliers","CLE",5,2024-05-03,401655122,1,5,0,0,1,2,7,0,1,5,0,3,30
+"Evan Mobley","Cavaliers","CLE",5,2024-05-03,401655122,1,5,0,0,1,2,6,0,1,5,0,3,29
 "Marcus Morris Sr.","Cavaliers","CLE",5,2024-05-03,401655122,1,7,0,4,0,0,8,2,0,0,1,2,7
-"Darius Garland","Cavaliers","CLE",5,2024-05-03,401655122,10,17,1,4,0,0,6,5,2,0,3,21,43
+"Darius Garland","Cavaliers","CLE",5,2024-05-03,401655122,10,17,1,4,0,0,7,5,2,0,3,21,44
 "Donovan Mitchell","Cavaliers","CLE",5,2024-05-03,401655122,22,36,3,9,3,6,4,4,0,1,4,50,66
 "Max Strus","Cavaliers","CLE",5,2024-05-03,401655122,4,7,2,5,0,0,8,1,1,0,2,10,23
 "Emoni Bates","Cavaliers","CLE",5,2024-05-03,401655122,0,0,0,0,0,0,0,0,0,0,0,0,0
