@@ -2,8 +2,6 @@ library(dplyr)
 library(hoopR)
 library(tidyverse)
 
-# Comment as a test
-
 fpts <- function(df){
     df$fgm*2 +
     df$fga*(-1) +
