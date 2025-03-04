@@ -16,7 +16,7 @@ fpts <- function(df){
     df$pts   
 }
 
-season_box_scores <- load_nba_player_box(2024) %>% 
+season_box_scores <- load_nba_player_box(2025) %>% 
   select(athlete_display_name, team_name, team_abbreviation, team_id, game_date, game_id,
          field_goals_made, field_goals_attempted, three_point_field_goals_made, 
          three_point_field_goals_attempted, free_throws_made, free_throws_attempted,
